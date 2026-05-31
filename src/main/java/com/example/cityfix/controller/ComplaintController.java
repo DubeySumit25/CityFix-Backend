@@ -61,4 +61,22 @@ public class ComplaintController {
 
         return complaintService.getMyComplaintById(id, email);
     }
+
+    @GetMapping
+    public List<ComplaintResponseDTO> getAllComplaints() {
+        return complaintService.getAllComplaints();
+    }
+
+    @PutMapping("/{id}/status")
+    public ComplaintResponseDTO updateStatus(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> body
+    ) {
+        return complaintService.updateStatus(id, body.get("status"));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteComplaint(@PathVariable Long id) {
+        complaintService.deleteComplaint(id);
+    }
 }

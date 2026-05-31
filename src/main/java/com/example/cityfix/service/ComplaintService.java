@@ -25,22 +25,12 @@ public class ComplaintService {
     private final UserRepository userRepository;
     private final ImageService imageService;
 
-    public ComplaintResponseDTO createComplaint(
-            String email,
-            ComplaintRequestDTO dto,
-            MultipartFile image
-    ) {
-
+    public ComplaintResponseDTO createComplaint(String email, ComplaintRequestDTO dto, MultipartFile image) {
         try {
-
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("User not found"));
-
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             String imageUrl = imageService.uploadImage(image);
-
             Complaint complaint = new Complaint();
-
             complaint.setTitle(dto.getTitle());
             complaint.setDescription(dto.getDescription());
             complaint.setCategory(dto.getCategory());
@@ -48,78 +38,59 @@ public class ComplaintService {
             complaint.setUser(user);
             complaint.setImageUrl(imageUrl);
             complaint.setLocation(dto.getLocation());
-
-            Complaint savedComplaint = complaintRepository.save(complaint);
-
-            return ComplaintMapper.toDTO(savedComplaint);
-
+            return ComplaintMapper.toDTO(complaintRepository.save(complaint));
         } catch (IOException e) {
             throw new RuntimeException("Image upload failed", e);
         }
     }
 
     public List<ComplaintResponseDTO> getMyComplaints(String email) {
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         return complaintRepository.findByUser(user)
-                .stream()
-                .map(ComplaintMapper::toDTO)
-                .toList();
+                .stream().map(ComplaintMapper::toDTO).toList();
     }
 
     public ComplaintResponseDTO getMyComplaintById(Long complaintId, String email) {
-
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
-
         if (!complaint.getUser().getEmail().equals(email)) {
             throw new RuntimeException("Unauthorized access");
         }
-
         return ComplaintMapper.toDTO(complaint);
     }
 
     public List<ComplaintResponseDTO> getAllComplaints() {
-
         return complaintRepository.findAll()
-                .stream()
-                .map(ComplaintMapper::toDTO)
-                .toList();
+                .stream().map(ComplaintMapper::toDTO).toList();
     }
 
     public List<ComplaintResponseDTO> getByStatus(ComplaintStatus status) {
-
         return complaintRepository.findByStatus(status)
-                .stream()
-                .map(ComplaintMapper::toDTO)
-                .toList();
+                .stream().map(ComplaintMapper::toDTO).toList();
     }
 
     public List<ComplaintResponseDTO> getByCategory(ComplaintCategory category) {
-
         return complaintRepository.findByCategory(category)
-                .stream()
-                .map(ComplaintMapper::toDTO)
-                .toList();
+                .stream().map(ComplaintMapper::toDTO).toList();
     }
 
     public ComplaintResponseDTO getById(Long id) {
-
         Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
-
         return ComplaintMapper.toDTO(complaint);
     }
 
-    public ComplaintResponseDTO updateStatus(Long id, ComplaintStatus status) {
-
+    public ComplaintResponseDTO updateStatus(Long id, String status) {
         Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
-
-        complaint.setStatus(status);
-
+        complaint.setStatus(ComplaintStatus.valueOf(status));
         return ComplaintMapper.toDTO(complaintRepository.save(complaint));
+    }
+
+    public void deleteComplaint(Long id) {
+        complaintRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
+        complaintRepository.deleteById(id);
     }
 }
