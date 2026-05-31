@@ -21,48 +21,40 @@ public class AdminController {
 
     @GetMapping
     public List<ComplaintResponseDTO> getAll() {
-
         return complaintService.getAllComplaints();
     }
 
     @GetMapping("/{id}")
-    public ComplaintResponseDTO getById(
-            @PathVariable Long id
-    ) {
-
+    public ComplaintResponseDTO getById(@PathVariable Long id) {
         return complaintService.getById(id);
     }
 
     @GetMapping("/status")
-    public List<ComplaintResponseDTO> getByStatus(
-            @RequestParam ComplaintStatus status
-    ) {
-
+    public List<ComplaintResponseDTO> getByStatus(@RequestParam ComplaintStatus status) {
         return complaintService.getByStatus(status);
     }
 
     @GetMapping("/category")
-    public List<ComplaintResponseDTO> getByCategory(
-            @RequestParam ComplaintCategory category
-    ) {
-
+    public List<ComplaintResponseDTO> getByCategory(@RequestParam ComplaintCategory category) {
         return complaintService.getByCategory(category);
     }
 
     @PutMapping("/{id}/status")
     public ComplaintResponseDTO updateStatus(
             @PathVariable Long id,
-            @RequestParam ComplaintStatus status
+            @RequestParam String status
     ) {
-
         return complaintService.updateStatus(id, status);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteComplaint(@PathVariable Long id) {
+        complaintService.deleteComplaint(id);
     }
 
     @PutMapping("/users/{id}/make-admin")
     public String makeAdmin(@PathVariable Long id) {
-
         userService.makeAdmin(id);
-
         return "User promoted to ADMIN";
     }
 
